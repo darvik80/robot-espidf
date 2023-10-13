@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <core/Application.h>
 
-class Roobot : public Application {
+class Robot : public Application {
 
 };
 
