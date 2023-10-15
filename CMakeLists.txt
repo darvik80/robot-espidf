@@ -5,8 +5,9 @@
 cmake_minimum_required(VERSION 3.16)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(robot-espidf)
 
 list(APPEND EXTRA_COMPONENT_DIRS libs/darvik/core-esp32)
 list(APPEND EXTRA_COMPONENT_DIRS libs/darvik/bluetooth-scanner)
+
+project(robot-espidf)
 

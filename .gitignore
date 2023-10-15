@@ -3,3 +3,4 @@
 sdkconfig.old
 build
 cmake-build-*
+data/config.json
