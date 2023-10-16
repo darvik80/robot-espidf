@@ -13,11 +13,11 @@ class Robot : public Application<Robot> {
 public:
 protected:
     void userSetup() override {
-//        getRegistry().create<NvsStorage>();
-//        getRegistry().create<TelemetryService>();
-//        getRegistry().create<WifiService>();
-//        auto &mqtt = getRegistry().create<MqttService>();
-//        mqtt.addJsonProcessor<Telemetry>("/telemetry");
+        getRegistry().create<NvsStorage>();
+        getRegistry().create<TelemetryService>();
+        getRegistry().create<WifiService>();
+        auto &mqtt = getRegistry().create<MqttService>();
+        mqtt.addJsonProcessor<Telemetry>("/telemetry");
 
         getRegistry().create<UartConsoleService>();
         getRegistry().create<BTManager>();
