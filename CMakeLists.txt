@@ -11,3 +11,4 @@ list(APPEND EXTRA_COMPONENT_DIRS libs/darvik/bluetooth-scanner)
 
 project(robot-espidf)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-missing-field-initializers")
