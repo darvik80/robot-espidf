@@ -1868,7 +1868,7 @@ CONFIG_BUS_ESP_EVENT_LOOP_ENABLED=y
 # end of core-esp32
 
 #
-# bluetooth-scanner
+# bluetooth-support
 #
 # end of Component config
 

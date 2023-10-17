@@ -6,7 +6,7 @@
 #include <core/system/console/Console.h>
 #include <bluetooth/BTManager.h>
 #include <bluetooth/BleDiscovery.h>
-#include <bluetooth/BTHidScanner.h>
+#include <bluetooth/BTHidDevice.h>
 #include "Gamepad.h"
 
 class Robot : public Application<Robot> {
@@ -22,7 +22,7 @@ protected:
         getRegistry().create<UartConsoleService>();
         getRegistry().create<BTManager>();
         getRegistry().create<BleDiscovery>();
-        getRegistry().create<BTHidScanner>();
+        getRegistry().create<BTHidDevice>();
 
         getRegistry().create<Gamepad>();
     }

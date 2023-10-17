@@ -3,7 +3,7 @@
 //
 
 #include "Gamepad.h"
-#include "bluetooth/BTHidScanner.h"
+#include "bluetooth/BTHidDevice.h"
 
 void fromJson(cJSON *json, GamepadProperties &props) {
     cJSON *item = json->child;
