@@ -24,13 +24,16 @@ protected:
         getRegistry().create<BleDiscovery>();
         getRegistry().create<BTHidDevice>();
 
-        getRegistry().create<Gamepad>();
+        //getRegistry().create<Gamepad>();
     }
 };
 
 std::shared_ptr<Robot> app;
 
 extern "C" void app_main() {
+    size_t free = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
+    size_t total = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
+    esp_logi(app, "heap: %d/%d", free, total);
     app = std::make_shared<Robot>();
     app->setup();
 }
