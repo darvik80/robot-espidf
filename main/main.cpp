@@ -9,10 +9,30 @@
 #include <bluetooth/BTHidDevice.h>
 #include "Gamepad.h"
 
-class Robot : public Application<Robot> {
+enum UserMessageId {
+    UM_MsgId_Test
+};
+
+struct TestEvent : TEvent<UM_MsgId_Test, Sys_User> {
+    char message[32] = "hello";
+};
+
+class Robot : public Application<Robot>, public TEventSubscriber<Robot, TestEvent> {
+    FreeRTOSEventBus<4> _bus;
+
+    EspEventBus _espBus;
 public:
+    Robot()
+    : _bus{withName("bus"), withQueueSize(4), withStackSize(3096)}
+    , _espBus{withName("esp-bus"), withQueueSize(4), withStackSize(3096), withSystemQueue(true)}
+    {
+
+    }
 protected:
     void userSetup() override {
+        getDefaultEventBus().subscribe(shared_from_this());
+        _bus.subscribe(shared_from_this());
+        _espBus.subscribe(shared_from_this());
         getRegistry().create<NvsStorage>();
         getRegistry().create<TelemetryService>();
         getRegistry().create<WifiService>();
@@ -25,6 +45,18 @@ protected:
         getRegistry().create<BTHidDevice>();
 
         //getRegistry().create<Gamepad>();
+
+        getDefaultEventBus().post(TestEvent{});
+        getDefaultEventBus().post(TestEvent{.message = "non-copiable"});
+
+
+        _bus.post(TestEvent{.message = "custom bus"});
+        _espBus.post(TestEvent{.message = "esp event bus"});
+    }
+
+public:
+    void onEvent(const TestEvent &event) {
+        esp_logi(app, "handle bus: %s, msg: %s", pcTaskGetName(nullptr), event.message);
     }
 };
 
