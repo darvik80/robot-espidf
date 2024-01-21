@@ -1,7 +1,7 @@
 #include <core/Core.h>
 #include <core/system/storage/NvsStorage.h>
-#ifndef CONFIG_IDF_TARGET_LINUX
 #include <core/system/telemetry/TelemetryService.h>
+#ifndef CONFIG_IDF_TARGET_LINUX
 #include <core/system/wifi/WifiService.h>
 #include <core/system/mqtt/MqttService.h>
 #include <core/system/console/Console.h>
@@ -36,8 +36,8 @@ protected:
         _bus.subscribe(shared_from_this());
         _espBus.subscribe(shared_from_this());
         getRegistry().create<NvsStorage>();
-#ifndef CONFIG_IDF_TARGET_LINUX
         getRegistry().create<TelemetryService>();
+#ifndef CONFIG_IDF_TARGET_LINUX
         getRegistry().create<WifiService>();
         auto &mqtt = getRegistry().create<MqttService>();
         mqtt.addJsonProcessor<Telemetry>("/telemetry");
