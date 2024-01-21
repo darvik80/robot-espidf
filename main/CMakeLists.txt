@@ -1,17 +1,20 @@
-if (${IDF_TARGET} STREQUAL "linux")
-    FILE(GLOB_RECURSE app_sources
-            ${CMAKE_SOURCE_DIR}/main/main.cpp
-            ../libs/darvik/core-esp32/src/core/EventBus.cpp
-            ../libs/darvik/core-esp32/src/core/Properties.cpp
-    )
-    idf_component_register(SRCS ${app_sources} INCLUDE_DIRS "." REQUIRES json esp_event nvs_flash spiffs)
-    file(COPY ../data/config.json DESTINATION ${PROJECT_BINARY_DIR}/../)
-else ()
-    FILE(GLOB_RECURSE app_sources
-            ${CMAKE_SOURCE_DIR}/main/main.cpp
-    )
-    idf_component_register(SRCS ${app_sources} INCLUDE_DIRS ".")
-endif ()
+    if (${IDF_TARGET} STREQUAL "linux")
+        FILE(GLOB_RECURSE app_sources
+                ${CMAKE_SOURCE_DIR}/main/main.cpp
+        )
+        idf_component_register(SRCS ${app_sources} INCLUDE_DIRS "." REQUIRES core-esp32)
+    else ()
+        FILE(GLOB_RECURSE app_sources
+                ${CMAKE_SOURCE_DIR}/main/*.cpp
+        )
+        idf_component_register(SRCS ${app_sources} INCLUDE_DIRS "." REQUIRES core-esp32 bluetooth)
+    endif ()
 
-spiffs_create_partition_image(storage ../data)
+
+    spiffs_create_partition_image(storage ../data)
+
+    if (${IDF_TARGET} STREQUAL "linux")
+        file(COPY ../data/config.json DESTINATION ${PROJECT_BINARY_DIR}/../)
+    endif ()
+
 

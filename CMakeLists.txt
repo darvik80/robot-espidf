@@ -21,7 +21,7 @@ else()
         )
 endif()
 
-
 list(APPEND EXTRA_COMPONENT_DIRS libs/darvik/core-esp32/)
+list(APPEND EXTRA_COMPONENT_DIRS libs/darvik/bluetooth/)
 
 project(robot-espidf)
