@@ -1,13 +1,13 @@
 #include <core/Core.h>
 #include <core/system/storage/NvsStorage.h>
-#include <core/system/telemetry/TelemetryService.h>
-#include <core/system/wifi/WifiService.h>
-#include <core/system/mqtt/MqttService.h>
-#include <core/system/console/Console.h>
-#include <bluetooth/BTManager.h>
-#include <bluetooth/BleDiscovery.h>
-#include <bluetooth/BTHidDevice.h>
-#include "Gamepad.h"
+//#include <core/system/telemetry/TelemetryService.h>
+//#include <core/system/wifi/WifiService.h>
+// #include <core/system/mqtt/MqttService.h>
+//#include <core/system/console/Console.h>
+// #include <bluetooth/BTManager.h>
+// #include <bluetooth/BleDiscovery.h>
+// #include <bluetooth/BTHidDevice.h>
+// #include "Gamepad.h"
 
 enum UserMessageId {
     UM_MsgId_Test
@@ -34,15 +34,15 @@ protected:
         _bus.subscribe(shared_from_this());
         _espBus.subscribe(shared_from_this());
         getRegistry().create<NvsStorage>();
-        getRegistry().create<TelemetryService>();
-        getRegistry().create<WifiService>();
-        auto &mqtt = getRegistry().create<MqttService>();
-        mqtt.addJsonProcessor<Telemetry>("/telemetry");
+        //getRegistry().create<TelemetryService>();
+        //getRegistry().create<WifiService>();
+        // auto &mqtt = getRegistry().create<MqttService>();
+        //mqtt.addJsonProcessor<Telemetry>("/telemetry");
 
-        getRegistry().create<UartConsoleService>();
-        getRegistry().create<BTManager>();
-        getRegistry().create<BleDiscovery>();
-        getRegistry().create<BTHidDevice>();
+        //getRegistry().create<UartConsoleService>();
+        // getRegistry().create<BTManager>();
+        // getRegistry().create<BleDiscovery>();
+        // getRegistry().create<BTHidDevice>();
 
         //getRegistry().create<Gamepad>();
 
@@ -63,9 +63,9 @@ public:
 std::shared_ptr<Robot> app;
 
 extern "C" void app_main() {
-    size_t free = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
-    size_t total = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
-    esp_logi(app, "heap: %d/%d", free, total);
+    // size_t free = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
+    // size_t total = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
+//    esp_logi(app, "heap: %d/%d", free, total);
     app = std::make_shared<Robot>();
     app->setup();
 }
