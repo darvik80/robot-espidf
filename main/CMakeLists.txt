@@ -8,12 +8,10 @@
                 ${CMAKE_SOURCE_DIR}/main/*.cpp
         )
         idf_component_register(SRCS ${app_sources} INCLUDE_DIRS "." REQUIRES core-esp32 bluetooth)
-    endif ()
 
-    spiffs_create_partition_image(storage ../data)
+        spiffs_create_partition_image(storage ../data)
+    endif ()
 
     if (${IDF_TARGET} STREQUAL "linux")
         file(COPY ${CMAKE_SOURCE_DIR}/data/config.json DESTINATION ${PROJECT_BINARY_DIR}/../)
     endif ()
-
-
