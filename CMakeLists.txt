@@ -15,8 +15,7 @@ if (${IDF_TARGET} STREQUAL "linux")
         #list(APPEND EXTRA_COMPONENT_DIRS $ENV{IDF_PATH}/tools/mocks/esp_wifi/)
 endif()
 
-list(APPEND EXTRA_COMPONENT_DIRS libs/darvik/core-esp32/)
-list(APPEND EXTRA_COMPONENT_DIRS libs/darvik/bluetooth/)
+list(APPEND EXTRA_COMPONENT_DIRS libs/darvik/)
 
 project(robot-espidf)
 
