@@ -1,6 +1,8 @@
 #include <core/Core.h>
 #include <core/system/storage/NvsStorage.h>
 #include <core/system/telemetry/TelemetryService.h>
+#include <esp_heap_caps_init.h>
+
 #ifndef CONFIG_IDF_TARGET_LINUX
 #include <core/system/wifi/WifiService.h>
 #include <core/system/mqtt/MqttService.h>
@@ -26,8 +28,8 @@ class Robot : public Application<Robot>, public TEventSubscriber<Robot, TestEven
 
 public:
     Robot()
-        : _bus{withName("bus"), withQueueSize(4), withStackSize(3096)}
-          , _espBus{withName("esp-bus"), withQueueSize(4), withStackSize(3096), withSystemQueue(true)} {
+            : _bus{withName("bus"), withQueueSize(4), withStackSize(3096)},
+              _espBus{withName("esp-bus"), withQueueSize(4), withStackSize(3096), withSystemQueue(true)} {
     }
 
 protected:
@@ -60,7 +62,7 @@ protected:
     }
 
 public:
-    void onEvent(const TestEvent&event) {
+    void onEvent(const TestEvent &event) {
         esp_logi(app, "handle bus: %s, msg: %s", pcTaskGetName(nullptr), event.message);
     }
 };
@@ -68,11 +70,12 @@ public:
 std::shared_ptr<Robot> app;
 
 extern "C" void app_main() {
-#ifndef CONFIG_IDF_TARGET_LINUX
+    std_error_check(bus_error::ok);
     size_t free = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
     size_t total = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
-    esp_logi(app, "heap: %d/%d", free, total);
-#endif
+    esp_logi(app, "heap: %zu/%zu", free, total);
+
+
     app = std::make_shared<Robot>();
     app->setup();
 }
