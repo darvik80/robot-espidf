@@ -7,6 +7,7 @@
 
 enum UserServiceId {
     Service_User_Gamepad,
+    Service_User_DCMotor,
 };
 
 enum UserPropId {

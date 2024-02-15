@@ -11,6 +11,7 @@
 #include <bluetooth/BleDiscovery.h>
 #include <bluetooth/BTHidDevice.h>
 #include "Gamepad.h"
+#include "DCMotor.h"
 #endif
 
 enum UserMessageId {
@@ -21,22 +22,12 @@ struct TestEvent : TEvent<UM_MsgId_Test, Sys_User> {
     char message[32] = "hello";
 };
 
-class Robot : public Application<Robot>, public TEventSubscriber<Robot, TestEvent> {
-    FreeRTOSEventBus<4> _bus;
-
-    EspEventBus _espBus;
-
+class Robot : public Application<Robot> {
 public:
-    Robot()
-            : _bus{withName("bus"), withQueueSize(4), withStackSize(3096)},
-              _espBus{withName("esp-bus"), withQueueSize(4), withStackSize(3096), withSystemQueue(true)} {
-    }
+    Robot() = default;
 
 protected:
     void userSetup() override {
-        getDefaultEventBus().subscribe(shared_from_this());
-        _bus.subscribe(shared_from_this());
-        _espBus.subscribe(shared_from_this());
         getRegistry().create<NvsStorage>();
         getRegistry().create<TelemetryService>();
 #ifndef CONFIG_IDF_TARGET_LINUX
@@ -49,22 +40,13 @@ protected:
         getRegistry().create<BleDiscovery>();
         getRegistry().create<BTHidDevice>();
 
-        getRegistry().create<Gamepad>();
+        //getRegistry().create<Gamepad>();
+
+        getRegistry().create<DCMotor<GPIO_NUM_1, GPIO_NUM_2, GPIO_NUM_3, LEDC_TIMER_0, LEDC_CHANNEL_0>>();
+        getRegistry().create<DCMotor<GPIO_NUM_6, GPIO_NUM_5, GPIO_NUM_4, LEDC_TIMER_1, LEDC_CHANNEL_1>>();
 #endif
-
-
-        getDefaultEventBus().post(TestEvent{});
-        getDefaultEventBus().post(TestEvent{.message = "non-copiable"});
-
-
-        _bus.post(TestEvent{.message = "custom bus"});
-        _espBus.post(TestEvent{.message = "esp event bus"});
     }
 
-public:
-    void onEvent(const TestEvent &event) {
-        esp_logi(app, "handle bus: %s, msg: %s", pcTaskGetName(nullptr), event.message);
-    }
 };
 
 std::shared_ptr<Robot> app;
@@ -74,7 +56,6 @@ extern "C" void app_main() {
     size_t free = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
     size_t total = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
     esp_logi(app, "heap: %zu/%zu", free, total);
-
 
     app = std::make_shared<Robot>();
     app->setup();
