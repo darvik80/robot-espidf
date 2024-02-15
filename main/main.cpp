@@ -18,6 +18,7 @@
 #endif
 
 #include "core/v2/FreeRTOSCpp.h"
+#include "core/Task.h"
 
 enum UserMessageId {
     UM_MsgId_Test,
@@ -69,9 +70,10 @@ class Robot
 
     EspEventBus _espBus;
 
-    SoftwareTimer _timer;
-    SoftwareTimer _fire;
+    FreeRTOSTimer _timer;
+    FreeRTOSTimer _fire;
 
+    FreeRTOSTask _task;
 public:
     Robot()
             : _bus{{.queueSize = 4, .stackSize = 3096, .name = "freertos-bus"}},
@@ -111,6 +113,13 @@ protected:
         });
 
         _fire.fire<SysTid_User>(30000, true);
+
+        _task = FreeRTOSTask::submit([]() {
+            esp_logi(task, "task1");
+        });
+        FreeRTOSTask::execute([]() {
+            esp_logi(task, "task2");
+        });
     }
 
 public:
