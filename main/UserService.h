@@ -5,8 +5,11 @@
 
 #pragma once
 
+#include "core/system/SystemEvent.h"
+
 enum UserServiceId {
     Service_User_Gamepad,
+    Service_User_LinuxHidGamepad,
 };
 
 enum UserPropId {

@@ -11,25 +11,71 @@
 #include <bluetooth/BleDiscovery.h>
 #include <bluetooth/BTHidDevice.h>
 #include "Gamepad.h"
+#else
+
+#include "HidGamepad.h"
+
 #endif
 
+#include "core/v2/FreeRTOSCpp.h"
+
 enum UserMessageId {
-    UM_MsgId_Test
+    UM_MsgId_Test,
+    UM_MsgId_Message,
+    UM_MsgId_Trivial,
+    UM_MsgId_NonTrivial,
 };
 
-struct TestEvent : TEvent<UM_MsgId_Test, Sys_User> {
+struct TestEvent : TMessage<UM_MsgId_Test, Sys_User> {
     char message[32] = "hello";
 };
 
-class Robot : public Application<Robot>, public TEventSubscriber<Robot, TestEvent> {
+struct TestCEvent : CMessage<UM_MsgId_Message, Sys_User> {
+    explicit TestCEvent(std::string_view message) : message(message) {}
+
+    std::string message = "complex";
+
+    ~TestCEvent() override {
+        esp_logi(test, "~TestCEvent");
+    }
+};
+
+struct Trivial : TMessage<UM_MsgId_Trivial, Sys_User> {
+    Trivial() = default;
+    explicit Trivial(std::string_view message) : message(message) {}
+
+    std::string message = "trivial";
+
+    ~Trivial() {
+        esp_logi(test, "~Trivial");
+    }
+};
+
+struct NonTrivial : CMessage<UM_MsgId_NonTrivial, Sys_User> {
+    NonTrivial() = default;
+    explicit NonTrivial(std::string_view message) : message(message) {}
+
+    std::string message = "not trivial";
+
+    ~NonTrivial() override {
+        esp_logi(test, "~NonTrivial");
+    }
+};
+
+class Robot
+        : public Application<Robot>,
+          public TMessageSubscriber<Robot, TestEvent, TestCEvent, Trivial, NonTrivial, TimerEvent<SysTid_User>> {
     FreeRTOSEventBus<4> _bus;
 
     EspEventBus _espBus;
 
+    SoftwareTimer _timer;
+    SoftwareTimer _fire;
+
 public:
     Robot()
-            : _bus{withName("bus"), withQueueSize(4), withStackSize(3096)},
-              _espBus{withName("esp-bus"), withQueueSize(4), withStackSize(3096), withSystemQueue(true)} {
+            : _bus{{.queueSize = 4, .stackSize = 3096, .name = "freertos-bus"}},
+              _espBus{{.queueSize = 4, .stackSize = 3096, .name = "esp-bus"}} {
     }
 
 protected:
@@ -50,31 +96,52 @@ protected:
         getRegistry().create<BTHidDevice>();
 
         getRegistry().create<Gamepad>();
+#else
+        //getRegistry().create<HidGamepad>();
 #endif
+        //getRegistry().getMessageBus().subscribe(shared_from_this());
+        TestEvent event;
+        strncpy(event.message, "hello", sizeof(event.message));
+        getRegistry().getEventBus().post(event);
 
+        getRegistry().getEventBus().post(TestCEvent{"hello complex"});
 
-        getDefaultEventBus().post(TestEvent{});
-        getDefaultEventBus().post(TestEvent{.message = "non-copiable"});
+        _timer.attach(20000, true, []() {
+            esp_logi(timer, "timer 20000");
+        });
 
-
-        _bus.post(TestEvent{.message = "custom bus"});
-        _espBus.post(TestEvent{.message = "esp event bus"});
+        _fire.fire<SysTid_User>(30000, true);
     }
 
 public:
-    void onEvent(const TestEvent &event) {
+    void handle(const TestEvent &event) {
         esp_logi(app, "handle bus: %s, msg: %s", pcTaskGetName(nullptr), event.message);
+        getRegistry().getEventBus().send(NonTrivial{});
+    }
+
+    void handle(const TestCEvent &event) {
+        esp_logi(app, "handle bus: %s, msg: %s", pcTaskGetName(nullptr), event.message.c_str());
+        getRegistry().getEventBus().send(Trivial{});
+    }
+    void handle(const Trivial &event) {
+        esp_logi(app, "handle bus: %s, msg: %s", pcTaskGetName(nullptr), event.message.c_str());
+    }
+    void handle(const NonTrivial &event) {
+        esp_logi(app, "handle bus: %s, msg: %s", pcTaskGetName(nullptr), event.message.c_str());
+    }
+
+    void handle(const TimerEvent<SysTid_User> &event) {
+        esp_logi(app, "handle timer: %s, msg: %d", pcTaskGetName(nullptr), event.TimerId);
     }
 };
 
 std::shared_ptr<Robot> app;
 
 extern "C" void app_main() {
-    std_error_check(bus_error::ok);
+
     size_t free = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
     size_t total = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
     esp_logi(app, "heap: %zu/%zu", free, total);
-
 
     app = std::make_shared<Robot>();
     app->setup();
