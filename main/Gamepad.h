@@ -17,7 +17,7 @@ struct GamepadProperties : TProperties<Props_User_Gamepad, System::Sys_User> {
 
 class Gamepad : public TService<Gamepad, Service_User_Gamepad, Sys_User>,
     public TPropertiesConsumer<Gamepad, GamepadProperties>,
-    public TEventSubscriber<Gamepad, BTHidConnected, BTHidDisconnected, BTHidInput, TimerEvent<UserTid_Gamepad>> {
+    public TMessageSubscriber<Gamepad, BTHidConnected, BTHidDisconnected, BTHidInput, TimerEvent<UserTid_Gamepad>> {
     EspTimer _timer{"gamepad-timer"};
 
     GamepadProperties _props;
@@ -26,11 +26,11 @@ public:
 
     void apply(const GamepadProperties &props);
 
-    void onEvent(const BTHidConnected& msg);
+    void handle(const BTHidConnected& msg);
 
-    void onEvent(const BTHidInput& msg);
+    void handle(const BTHidInput& msg);
 
-    void onEvent(const BTHidDisconnected& msg);
+    void handle(const BTHidDisconnected& msg);
 
-    void onEvent(const TimerEvent<UserTid_Gamepad>& msg);
+    void handle(const TimerEvent<UserTid_Gamepad>& msg);
 };

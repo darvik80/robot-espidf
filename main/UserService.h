@@ -9,6 +9,8 @@
 
 enum UserServiceId {
     Service_User_Gamepad,
+    Service_User_DCMotorLeft,
+    Service_User_DCMotorRight,
     Service_User_LinuxHidGamepad,
 };
 
@@ -18,4 +20,9 @@ enum UserPropId {
 
 enum UserTimerId {
     UserTid_Gamepad = SysTid_TimerMaxId,
+};
+
+
+enum UserMessageId {
+    UserMsgId_DC,
 };

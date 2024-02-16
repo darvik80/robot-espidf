@@ -29,12 +29,12 @@ void Gamepad::apply(const GamepadProperties &props) {
     esp_logi(gamepad, "apply permissions");
 }
 
-void Gamepad::onEvent(const BTHidConnected &) {
+void Gamepad::handle(const BTHidConnected &) {
     esp_logi(gamepad, "connected, stop timer");
     _timer.detach();
 }
 
-void Gamepad::onEvent(const BTHidInput &msg) {
+void Gamepad::handle(const BTHidInput &msg) {
     if (msg.usage == ESP_HID_USAGE_GAMEPAD) {
         auto *gamepad = (HidGamePad *) msg.data;
         esp_logi(gamepad, "input:");
@@ -58,12 +58,12 @@ void Gamepad::onEvent(const BTHidInput &msg) {
     }
 }
 
-void Gamepad::onEvent(const BTHidDisconnected &) {
+void Gamepad::handle(const BTHidDisconnected &) {
     esp_logi(gamepad, "disconnected, start timer");
     _timer.fire<UserTid_Gamepad>(5000, true);
 }
 
-void Gamepad::onEvent(const TimerEvent<UserTid_Gamepad> &) {
+void Gamepad::handle(const TimerEvent<UserTid_Gamepad> &) {
     BTHidConnRequest cmd{
             .transport = ESP_HID_TRANSPORT_BLE,
     };
