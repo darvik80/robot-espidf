@@ -18,7 +18,7 @@ enum DCDirection {
 template<SystemId id>
 struct DCControl : TMessage<UserMsgId_DC, Sys_User, id> {
     DCDirection direction{};
-    uint16_t speed{};
+    int speed{};
 };
 
 struct DCMotorOptions {

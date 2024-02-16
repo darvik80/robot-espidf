@@ -25,4 +25,5 @@ enum UserTimerId {
 
 enum UserMessageId {
     UserMsgId_DC,
+    UserMsgId_Gamepad,
 };

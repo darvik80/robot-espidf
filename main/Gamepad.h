@@ -15,6 +15,29 @@ struct GamepadProperties : TProperties<Props_User_Gamepad, System::Sys_User> {
 
 [[maybe_unused]] void fromJson(cJSON *json, GamepadProperties &props);
 
+struct GamepadInput :TMessage<UserMsgId_Gamepad, Sys_User> {
+    struct Axis {
+        int16_t x;
+        int16_t y;
+        bool btn;
+    };
+    Axis leftAxis;
+    Axis rightAxis;
+
+    struct {
+        bool a: 1;
+        bool b: 1;
+        bool x: 1;
+        bool y: 1;
+        bool select: 1;
+        bool start: 1;
+        bool lb: 1;
+        bool rb: 1;
+    } keys;
+    int lt;
+    int rt;
+};
+
 class Gamepad : public TService<Gamepad, Service_User_Gamepad, Sys_User>,
     public TPropertiesConsumer<Gamepad, GamepadProperties>,
     public TMessageSubscriber<Gamepad, BTHidConnected, BTHidDisconnected, BTHidInput, TimerEvent<UserTid_Gamepad>> {

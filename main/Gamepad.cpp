@@ -55,6 +55,33 @@ void Gamepad::handle(const BTHidInput &msg) {
         if (gamepad->keys1.y) {
             esp_logi(gamepad, "\tbtnY: pushed");
         }
+
+        GamepadInput input {
+            .leftAxis {
+                .x = (int16_t)(((int16_t) gamepad->leftAxisX - 128) * 8),
+                .y = (int16_t)(((int16_t) gamepad->leftAxisY - 128) * 8),
+                .btn =  gamepad->keys2.leftAxis,
+            },
+            .rightAxis {
+                .x = (int16_t)(((int16_t) gamepad->rightAxisX - 128) * 8),
+                .y = (int16_t)(((int16_t) gamepad->rightAxisY - 128) * 8),
+                .btn =  gamepad->keys2.rightAxis,
+            },
+            .keys {
+                .a = gamepad->keys1.a,
+                .b = gamepad->keys1.b,
+                .x = gamepad->keys1.x,
+                .y = gamepad->keys1.y,
+                .select = gamepad->keys2.select,
+                .start = gamepad->keys2.start,
+                .lb = gamepad->keys1.lb,
+                .rb = gamepad->keys1.rb,
+            },
+            .lt = gamepad->lt,
+            .rt = gamepad->rt,
+        };
+
+        getDefaultEventBus().post(input);
     }
 }
 
@@ -69,6 +96,4 @@ void Gamepad::handle(const TimerEvent<UserTid_Gamepad> &) {
     };
     strncpy(cmd.bdAddr, _props.bda.c_str(), std::min((size_t) 18, _props.bda.size()));
     getDefaultEventBus().post(cmd);
-
-    esp_logi(gamepad, "on timer");
 }

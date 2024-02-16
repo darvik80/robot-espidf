@@ -1,6 +1,6 @@
 Robot based on ESP32 devices
 * [x] target: Linux for debugging
-* [x] BLE/HID Joystick
+* [x] BLE/HID Joystick (https://ags-official.com.ua/ru/instruktsiya-pidkluchennya-dlya-vsikh-igrovikh-kontroleriv-ipega/)
 * [ ] Servo motor
 * [ ] L293 motor
 
