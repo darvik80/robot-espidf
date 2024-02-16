@@ -86,7 +86,7 @@ public:
 public:
     void onEvent(const DCControl &msg) {
         //esp_logi(dc, "handle event: %d:%d", msg.serviceId, (uint8_t)this->getServiceId());
-        if (msg.serviceId == (uint8_t)this->getServiceId()) {
+        if (msg.serviceId == this->getServiceId()) {
             if (_lastMsg.direction != msg.direction || _lastMsg.speed != msg.speed) {
                 if (msg.direction == DCControl::FORWARD) {
                     gpio_set_level(in1, 1);

@@ -12,7 +12,11 @@
 #include <bluetooth/BTHidDevice.h>
 #include "Gamepad.h"
 #include "DCMotor.h"
+
+typedef DCMotor<Service_User_DCMotorLeft, GPIO_NUM_1, GPIO_NUM_2, GPIO_NUM_3, LEDC_TIMER_0, LEDC_CHANNEL_0> DCMotorLeft;
+typedef DCMotor<Service_User_DCMotorRight, GPIO_NUM_6, GPIO_NUM_4, GPIO_NUM_5, LEDC_TIMER_1, LEDC_CHANNEL_1> DCMotorRight;
 #endif
+
 
 class Robot : public Application<Robot>, public TEventSubscriber<Robot, BTHidInput> {
 public:
@@ -35,15 +39,15 @@ protected:
 
         getRegistry().create<Gamepad>();
 
-        getRegistry().create<DCMotor<Service_User_DCMotorLeft, GPIO_NUM_1, GPIO_NUM_2, GPIO_NUM_3, LEDC_TIMER_0, LEDC_CHANNEL_0>>();
-        getRegistry().create<DCMotor<Service_User_DCMotorRight, GPIO_NUM_6, GPIO_NUM_4, GPIO_NUM_5, LEDC_TIMER_1, LEDC_CHANNEL_1>>();
+        getRegistry().create<DCMotorLeft>();
+        getRegistry().create<DCMotorRight>();
 #endif
     }
 public:
     void onEvent(const BTHidInput &msg) {
         if (msg.usage == ESP_HID_USAGE_GAMEPAD) {
             auto *gamepad = (HidGamePad *) msg.data;
-            DCControl leftControl{.serviceId = Service_User_DCMotorLeft};
+            DCControl leftControl{.serviceId = DCMotorLeft::ID};
             if (gamepad->leftAxisY <= 128) {
                 leftControl.direction = DCControl::FORWARD;
             } else {
@@ -52,7 +56,7 @@ public:
             leftControl.speed = std::abs((int16_t)gamepad->leftAxisY-128)*8;
             getRegistry().getEventBus().post(leftControl);
 
-            DCControl rightControl{.serviceId = Service_User_DCMotorRight};
+            DCControl rightControl{.serviceId = DCMotorRight::ID};
             //esp_logi(app, "left-speed: %d", leftControl.speed);
             if (gamepad->rightAxisY <=128) {
                 rightControl.direction = DCControl::FORWARD;
