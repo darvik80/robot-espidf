@@ -14,20 +14,13 @@
 #include "DCMotor.h"
 #endif
 
-enum UserMessageId {
-    UM_MsgId_Test
-};
-
-struct TestEvent : TEvent<UM_MsgId_Test, Sys_User> {
-    char message[32] = "hello";
-};
-
-class Robot : public Application<Robot> {
+class Robot : public Application<Robot>, public TEventSubscriber<Robot, BTHidInput> {
 public:
     Robot() = default;
 
 protected:
     void userSetup() override {
+        getRegistry().getEventBus().subscribe(shared_from_this());
         getRegistry().create<NvsStorage>();
         getRegistry().create<TelemetryService>();
 #ifndef CONFIG_IDF_TARGET_LINUX
@@ -40,13 +33,38 @@ protected:
         getRegistry().create<BleDiscovery>();
         getRegistry().create<BTHidDevice>();
 
-        //getRegistry().create<Gamepad>();
+        getRegistry().create<Gamepad>();
 
-        getRegistry().create<DCMotor<GPIO_NUM_1, GPIO_NUM_2, GPIO_NUM_3, LEDC_TIMER_0, LEDC_CHANNEL_0>>();
-        getRegistry().create<DCMotor<GPIO_NUM_6, GPIO_NUM_5, GPIO_NUM_4, LEDC_TIMER_1, LEDC_CHANNEL_1>>();
+        getRegistry().create<DCMotor<Service_User_DCMotorLeft, GPIO_NUM_1, GPIO_NUM_2, GPIO_NUM_3, LEDC_TIMER_0, LEDC_CHANNEL_0>>();
+        getRegistry().create<DCMotor<Service_User_DCMotorRight, GPIO_NUM_6, GPIO_NUM_4, GPIO_NUM_5, LEDC_TIMER_1, LEDC_CHANNEL_1>>();
 #endif
     }
+public:
+    void onEvent(const BTHidInput &msg) {
+        if (msg.usage == ESP_HID_USAGE_GAMEPAD) {
+            auto *gamepad = (HidGamePad *) msg.data;
+            DCControl leftControl{.serviceId = Service_User_DCMotorLeft};
+            if (gamepad->leftAxisY <= 128) {
+                leftControl.direction = DCControl::FORWARD;
+            } else {
+                leftControl.direction = DCControl::BACKWARD;
+            }
+            leftControl.speed = std::abs((int16_t)gamepad->leftAxisY-128)*8;
+            getRegistry().getEventBus().post(leftControl);
 
+            DCControl rightControl{.serviceId = Service_User_DCMotorRight};
+            //esp_logi(app, "left-speed: %d", leftControl.speed);
+            if (gamepad->rightAxisY <=128) {
+                rightControl.direction = DCControl::FORWARD;
+            } else {
+                rightControl.direction = DCControl::BACKWARD;
+            }
+            rightControl.speed = std::abs((int16_t)gamepad->rightAxisY-128)*8;
+            getRegistry().getEventBus().post(rightControl);
+            //esp_logi(app, "right-speed: %d", rightControl.speed);
+        }
+
+    }
 };
 
 std::shared_ptr<Robot> app;
