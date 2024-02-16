@@ -17,7 +17,6 @@
 
 #endif
 
-#include "core/v2/FreeRTOSCpp.h"
 #include "core/Task.h"
 
 enum UserMessageId {
