@@ -7,6 +7,7 @@
                 ${CMAKE_SOURCE_DIR}/main/LinuxHidGamepad.cpp
                 ${CMAKE_SOURCE_DIR}/main/v2/*.cpp
         )
+
         idf_component_register(SRCS ${app_sources} INCLUDE_DIRS "." REQUIRES core-esp32 extra-linux)
         include_directories(
                 /opt/homebrew/include

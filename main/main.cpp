@@ -16,8 +16,6 @@
 
 #endif
 
-#include "core/Task.h"
-
 class Robot : public Application<Robot>, public TMessageSubscriber<Robot, GamepadInput> {
 public:
     Robot() = default;
@@ -48,8 +46,8 @@ protected:
         });
         getRegistry().create<DCMotor<Service_User_DCMotorRight>>(DCMotorOptions{
                 .en = GPIO_NUM_6,
-                .in1 = GPIO_NUM_5,
-                .in2 = GPIO_NUM_4,
+                .in1 = GPIO_NUM_4,
+                .in2 = GPIO_NUM_5,
                 .timer = LEDC_TIMER_1,
                 .ch = LEDC_CHANNEL_1
         });
@@ -62,23 +60,16 @@ public:
 #ifndef CONFIG_IDF_TARGET_LINUX
 
     void handle(const GamepadInput &msg) {
-        DCControl<Service_User_DCMotorLeft> leftControl{
-                .direction = msg.leftAxis.y<0 ? FORWARD : BACKWARD,
-                                     .speed = std::abs(msg.leftAxis.y),
-        };
-        getRegistry().getEventBus().post(leftControl);
-
-        DCControl<Service_User_DCMotorRight> rightControl{
-                .direction = msg.rightAxis.y<0 ? FORWARD : BACKWARD,
-                                     .speed = std::abs(msg.rightAxis.y),
-        };
-        getRegistry().getEventBus().post(rightControl);
+        auto left = getRegistry().getService<DCMotor<Service_User_DCMotorLeft>>();
+        left->move(msg.leftAxis.y<0 ? FORWARD : BACKWARD, std::abs(msg.leftAxis.y));
+        auto right = getRegistry().getService<DCMotor<Service_User_DCMotorRight>>();
+        right->move(msg.rightAxis.y<0 ? FORWARD : BACKWARD, std::abs(msg.rightAxis.y));
     }
 
 #endif
 };
 
-std::shared_ptr<Robot> app;
+static std::shared_ptr<Robot> app;
 
 extern "C" void app_main() {
 

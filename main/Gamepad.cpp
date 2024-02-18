@@ -37,24 +37,24 @@ void Gamepad::handle(const BTHidConnected &) {
 void Gamepad::handle(const BTHidInput &msg) {
     if (msg.usage == ESP_HID_USAGE_GAMEPAD) {
         auto *gamepad = (HidGamePad *) msg.data;
-        esp_logi(gamepad, "input:");
-        esp_logi(gamepad, "\tleftAxis: %02d:%02d", gamepad->leftAxisX, gamepad->leftAxisY);
-        esp_logi(gamepad, "\tRightAxis: %02d:%02d", gamepad->rightAxisX, gamepad->rightAxisY);
-        esp_logi(gamepad, "\tleftAxis: %d: rightAxis: %d", gamepad->keys2.leftAxis, gamepad->keys2.rightAxis);
-        esp_logi(gamepad, "\tlb: %d: rb: %d", gamepad->keys1.lb, gamepad->keys1.rb);
-        esp_logi(gamepad, "\tlt: %d: rt: %d", gamepad->lt, gamepad->rt);
-        if (gamepad->keys1.a) {
-            esp_logi(gamepad, "\tbtnA: pushed");
-        }
-        if (gamepad->keys1.b) {
-            esp_logi(gamepad, "\tbtnB: pushed");
-        }
-        if (gamepad->keys1.x) {
-            esp_logi(gamepad, "\tbtnX: pushed");
-        }
-        if (gamepad->keys1.y) {
-            esp_logi(gamepad, "\tbtnY: pushed");
-        }
+//        esp_logi(gamepad, "input:");
+//        esp_logi(gamepad, "\tleftAxis: %02d:%02d", gamepad->leftAxisX, gamepad->leftAxisY);
+//        esp_logi(gamepad, "\tRightAxis: %02d:%02d", gamepad->rightAxisX, gamepad->rightAxisY);
+//        esp_logi(gamepad, "\tleftAxis: %d: rightAxis: %d", gamepad->keys2.leftAxis, gamepad->keys2.rightAxis);
+//        esp_logi(gamepad, "\tlb: %d: rb: %d", gamepad->keys1.lb, gamepad->keys1.rb);
+//        esp_logi(gamepad, "\tlt: %d: rt: %d", gamepad->lt, gamepad->rt);
+//        if (gamepad->keys1.a) {
+//            esp_logi(gamepad, "\tbtnA: pushed");
+//        }
+//        if (gamepad->keys1.b) {
+//            esp_logi(gamepad, "\tbtnB: pushed");
+//        }
+//        if (gamepad->keys1.x) {
+//            esp_logi(gamepad, "\tbtnX: pushed");
+//        }
+//        if (gamepad->keys1.y) {
+//            esp_logi(gamepad, "\tbtnY: pushed");
+//        }
 
         GamepadInput input {
             .leftAxis {

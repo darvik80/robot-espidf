@@ -15,8 +15,7 @@ enum DCDirection {
     BACKWARD,
 };
 
-template<SystemId id>
-struct DCControl : TMessage<UserMsgId_DC, Sys_User, id> {
+struct DCControl {
     DCDirection direction{};
     int speed{};
 };
@@ -30,13 +29,21 @@ struct DCMotorOptions {
 };
 
 template<SystemId sysId>
-class DCMotor : public TService<DCMotor<sysId>, sysId, Sys_User>,
-                public TMessageSubscriber<DCMotor<sysId>, DCControl<sysId>> {
-    DCControl<sysId> _lastMsg;
+class DCMotor : public TService<DCMotor<sysId>, sysId, Sys_User> {
+    DCControl _lastMsg;
     DCMotorOptions _options;
+
+    FreeRTOSMessageBus<DCControl, 1> _bus;
 public:
     explicit DCMotor(Registry &registry, const DCMotorOptions &options)
-            : TService<DCMotor<sysId>, sysId, Sys_User>(registry), _options(options) {}
+            : TService<DCMotor<sysId>, sysId, Sys_User>(registry), _options(options),
+              _bus([this](const DCControl &msg) {
+                       handle(msg);
+                   },
+                   {
+                           .name = "dc-bus"
+                   }
+              ) {}
 
     void setup() {
         gpio_reset_pin(_options.en);
@@ -75,8 +82,8 @@ public:
         ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
     }
 
-public:
-    void handle(const DCControl<sysId> &msg) {
+private:
+    void handle(const DCControl &msg) {
         if (_lastMsg.direction != msg.direction || _lastMsg.speed != msg.speed) {
             if (msg.direction == FORWARD) {
                 gpio_set_level(_options.in1, 1);
@@ -91,6 +98,11 @@ public:
 
             _lastMsg = msg;
         }
+    }
+
+public:
+    void move(DCDirection direction, int speed) {
+        _bus.overwrite(DCControl{.direction = direction, .speed = speed});
     }
 };
 
