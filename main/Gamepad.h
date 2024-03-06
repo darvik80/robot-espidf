@@ -47,6 +47,10 @@ class Gamepad : public TService<Gamepad, Service_User_Gamepad, Sys_User>,
 public:
     explicit Gamepad(Registry &registry);
 
+    [[nodiscard]] std::string_view getServiceName() const override {
+        return "gamepad";
+    }
+
     void apply(const GamepadProperties &props);
 
     void handle(const BTHidConnected& msg);
