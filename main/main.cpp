@@ -76,7 +76,6 @@ public:
 static std::shared_ptr<Robot> app;
 
 extern "C" void app_main() {
-
     size_t free = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
     size_t total = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
     esp_logi(app, "heap: %zu/%zu", free, total);
