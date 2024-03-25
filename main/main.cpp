@@ -13,6 +13,7 @@
 #include <bluetooth/BTHidDevice.h>
 #include "Gamepad.h"
 #include "DCMotor.h"
+#include "Beacon.h"
 
 #endif
 
@@ -28,14 +29,14 @@ protected:
 #ifndef CONFIG_IDF_TARGET_LINUX
         getRegistry().create<WifiService>();
         auto &mqtt = getRegistry().create<MqttService>();
-        mqtt.addJsonProcessor<Telemetry>("/telemetry");
+        mqtt.addJsonProcessor<Telemetry>("/user/telemetry");
 
         getRegistry().create<UartConsoleService>();
         getRegistry().create<BTManager>();
-        getRegistry().create<BleDiscovery>();
+        getRegistry().create<BleDiscovery>(Beacon::getFilter());
         getRegistry().create<BTHidDevice>();
 
-        getRegistry().create<Gamepad>();
+        //getRegistry().create<Gamepad>();
 
         getRegistry().create<DCMotor<Service_User_DCMotorLeft>>(DCMotorOptions{
                 .en = GPIO_NUM_1,
@@ -51,6 +52,9 @@ protected:
                 .timer = LEDC_TIMER_1,
                 .ch = LEDC_CHANNEL_1
         });
+
+        getRegistry().create<Beacon>();
+        mqtt.addJsonProcessor<LocationTagReport>("/user/report");
 #else
         //getRegistry().create<HidGamepad>();
 #endif
@@ -72,7 +76,6 @@ public:
 static std::shared_ptr<Robot> app;
 
 extern "C" void app_main() {
-
     size_t free = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
     size_t total = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
     esp_logi(app, "heap: %zu/%zu", free, total);

@@ -45,6 +45,10 @@ public:
                    }
               ) {}
 
+    [[nodiscard]] std::string_view getServiceName() const override {
+        return "dc-motor";
+    }
+
     void setup() {
         gpio_reset_pin(_options.en);
         gpio_set_direction(_options.en, GPIO_MODE_OUTPUT);
