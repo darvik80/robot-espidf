@@ -11,7 +11,6 @@
 #define SERVO_MIN_DEGREE        (-90)   // Minimum angle
 #define SERVO_MAX_DEGREE        90    // Maximum angle
 
-#define SERVO_PULSE_GPIO             0        // GPIO connects to the PWM signal line
 #define SERVO_TIMEBASE_RESOLUTION_HZ 1000000  // 1MHz, 1us per tick
 #define SERVO_TIMEBASE_PERIOD        20000    // 20000 ticks, 20ms
 
@@ -23,8 +22,7 @@ static inline uint32_t example_angle_to_compare(int angle) {
 ServoMotor::ServoMotor(Registry &registry, const ServoMotorOptions &options)
         : TService(registry), _options(options), _bus([this](const ServoControl &msg) {
                                                           handle(msg);
-                                                          vTaskDelay(pdMS_TO_TICKS(500));
-                                                      }, {.name = "servo-bus"}
+                                                      }, {.stackSize=4096, .name = "servo-bus"}
 ) {}
 
 void ServoMotor::setup() {
@@ -55,7 +53,7 @@ void ServoMotor::setup() {
     ESP_ERROR_CHECK(mcpwm_new_comparator(_operator, &comparator_config, &_comparator));
 
     mcpwm_generator_config_t generator_config = {
-            .gen_gpio_num = SERVO_PULSE_GPIO,
+            .gen_gpio_num = _options.gpio,
     };
     ESP_ERROR_CHECK(mcpwm_new_generator(_operator, &generator_config, &_generator));
 
@@ -77,11 +75,26 @@ void ServoMotor::setup() {
     core_logi(servo, "Enable and start timer");
     ESP_ERROR_CHECK(mcpwm_timer_enable(_timer));
     ESP_ERROR_CHECK(mcpwm_timer_start_stop(_timer, MCPWM_TIMER_START_NO_STOP));
+
+//    core_logi(servo, "Run servo job");
+//    FreeRTOSTask::execute([this]() {
+//        core_logi(servo, "exec job");
+//        while (true) {
+//            for (int angle = -90; angle < 90; angle += 30) {
+//                _bus.post(ServoControl{.angle=angle}, pdMS_TO_TICKS(2000));
+//            }
+//            for (int angle = 90; angle > -90; angle -= 30) {
+//                _bus.post(ServoControl{.angle=angle}, pdMS_TO_TICKS(2000));
+//            }
+//        }
+//    }, "servo", 4096);
 }
 
 void ServoMotor::handle(const ServoControl &msg) {
-    core_logi(servo, "Angle of rotation: %d", msg.angle);
-    ESP_ERROR_CHECK(mcpwm_comparator_set_compare_value(_comparator, example_angle_to_compare(msg.angle)));
-    //Add delay, since it takes time for servo to rotate, usually 200ms/60degree rotation under 5V power supply
-    vTaskDelay(pdMS_TO_TICKS(500));
+    if (_lastAngle != msg.angle) {
+        ESP_ERROR_CHECK(mcpwm_comparator_set_compare_value(_comparator, example_angle_to_compare(msg.angle)));
+        //Add delay, since it takes time for servo to rotate, usually 200ms/60degree rotation under 5V power supply
+        vTaskDelay(pdMS_TO_TICKS(500));
+        _lastAngle = msg.angle;
+    }
 }

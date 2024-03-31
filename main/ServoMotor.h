@@ -19,6 +19,7 @@ struct ServoControl {
 };
 
 class ServoMotor : public TService<ServoMotor, Service_User_ServoMotor, Sys_User> {
+    int _lastAngle{0};
     ServoMotorOptions _options;
 
     FreeRTOSMessageBus<ServoControl, 1> _bus;
@@ -35,6 +36,9 @@ public:
     }
 
     void setup() override;
+    void move(int angle) {
+        _bus.overwrite(ServoControl{.angle = angle});
+    }
 private:
     void handle(const ServoControl &msg);
 

@@ -55,13 +55,15 @@ protected:
                 .ch = LEDC_CHANNEL_1
         });
 
-        getRegistry().create<ServoMotor>(ServoMotorOptions{.gpio=GPIO_NUM_12});
+        getRegistry().create<ServoMotor>(ServoMotorOptions{.gpio=GPIO_NUM_41});
 
 //        getRegistry().create<Beacon>();
 //        mqtt.addJsonProcessor<LocationTagReport>("/user/report");
 #else
         //getRegistry().create<HidGamepad>();
 #endif
+
+        gpio_set_level(GPIO_NUM_48, 1);
     }
 
 public:
@@ -72,6 +74,14 @@ public:
         left->move(msg.leftAxis.y<0 ? FORWARD : BACKWARD, std::abs(msg.leftAxis.y));
         auto right = getRegistry().getService<DCMotor<Service_User_DCMotorRight>>();
         right->move(msg.rightAxis.y<0 ? FORWARD : BACKWARD, std::abs(msg.rightAxis.y));
+
+        if (msg.lt && !msg.rt) {
+            getRegistry().getService<ServoMotor>()->move(90);
+        } else if (msg.rt && !msg.lt) {
+            getRegistry().getService<ServoMotor>()->move(-90);
+        } else {
+            getRegistry().getService<ServoMotor>()->move(0);
+        }
     }
 
 #endif
