@@ -39,6 +39,7 @@ public:
             : TService<DCMotor<sysId>, sysId, Sys_User>(registry), _options(options),
               _bus([this](const DCControl &msg) {
                        handle(msg);
+                       vTaskDelay(pdMS_TO_TICKS(500));
                    },
                    {
                            .name = "dc-bus"

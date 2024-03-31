@@ -14,6 +14,8 @@
 #include "Gamepad.h"
 #include "DCMotor.h"
 #include "Beacon.h"
+#include "ServoMotor.h"
+#include <core/StateMachine.h>
 
 #endif
 
@@ -36,7 +38,7 @@ protected:
         getRegistry().create<BleDiscovery>(Beacon::getFilter());
         getRegistry().create<BTHidDevice>();
 
-        //getRegistry().create<Gamepad>();
+        getRegistry().create<Gamepad>();
 
         getRegistry().create<DCMotor<Service_User_DCMotorLeft>>(DCMotorOptions{
                 .en = GPIO_NUM_1,
@@ -53,8 +55,10 @@ protected:
                 .ch = LEDC_CHANNEL_1
         });
 
-        getRegistry().create<Beacon>();
-        mqtt.addJsonProcessor<LocationTagReport>("/user/report");
+        getRegistry().create<ServoMotor>(ServoMotorOptions{.gpio=GPIO_NUM_12});
+
+//        getRegistry().create<Beacon>();
+//        mqtt.addJsonProcessor<LocationTagReport>("/user/report");
 #else
         //getRegistry().create<HidGamepad>();
 #endif
