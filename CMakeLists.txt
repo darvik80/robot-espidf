@@ -12,7 +12,6 @@ include_directories(
 
 if (${IDF_TARGET} STREQUAL "linux")
         set(COMPONENTS main)
-        #list(APPEND EXTRA_COMPONENT_DIRS $ENV{IDF_PATH}/tools/mocks/esp_wifi/)
 endif()
 
 list(APPEND EXTRA_COMPONENT_DIRS libs/darvik/)

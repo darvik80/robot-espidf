@@ -11,6 +11,8 @@ enum UserServiceId {
     Service_User_Gamepad,
     Service_User_DCMotorLeft,
     Service_User_DCMotorRight,
+    Service_User_ServoMotor,
+    Service_User_Distance,
     Service_User_Beacon,
     Service_User_LinuxHidGamepad,
 };
