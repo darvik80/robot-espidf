@@ -35,6 +35,12 @@ class DCMotor : public TService<DCMotor<sysId>, sysId, Sys_User> {
 
     FreeRTOSMessageBus<DCControl, 1> _bus;
 public:
+    DCMotor() = delete;
+
+    DCMotor(const DCMotor &) = delete;
+
+    DCMotor &operator=(const DCMotor &) = delete;
+
     explicit DCMotor(Registry &registry, const DCMotorOptions &options)
             : TService<DCMotor<sysId>, sysId, Sys_User>(registry), _options(options),
               _bus([this](const DCControl &msg) {

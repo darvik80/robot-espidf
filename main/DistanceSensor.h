@@ -19,6 +19,12 @@ class DistanceSensor : public TService<DistanceSensor, Service_User_Distance, Sy
 private:
     void entry();
 public:
+    DistanceSensor() = delete;
+
+    DistanceSensor(const DistanceSensor &) = delete;
+
+    DistanceSensor &operator=(const DistanceSensor &) = delete;
+
     explicit DistanceSensor(Registry &registry, const DistanceOptions& options);
 
     void setup() override;

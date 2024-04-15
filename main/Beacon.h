@@ -73,6 +73,12 @@ class Beacon
 
     FreeRTOSTimer _timer;
 public:
+    Beacon() = delete;
+
+    Beacon(const Beacon &) = delete;
+
+    Beacon &operator=(const Beacon &) = delete;
+
     explicit Beacon(Registry &registry);
 
     [[nodiscard]] std::string_view getServiceName() const override {

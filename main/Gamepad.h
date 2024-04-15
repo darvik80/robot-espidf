@@ -45,6 +45,12 @@ class Gamepad : public TService<Gamepad, Service_User_Gamepad, Sys_User>,
 
     GamepadProperties _props;
 public:
+    Gamepad() = delete;
+
+    Gamepad(const Gamepad &) = delete;
+
+    Gamepad &operator=(const Gamepad &) = delete;
+
     explicit Gamepad(Registry &registry);
 
     [[nodiscard]] std::string_view getServiceName() const override {

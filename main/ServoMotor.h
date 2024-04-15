@@ -29,6 +29,12 @@ class ServoMotor : public TService<ServoMotor, Service_User_ServoMotor, Sys_User
     mcpwm_cmpr_handle_t _comparator{nullptr};
     mcpwm_gen_handle_t _generator{nullptr};
 public:
+    ServoMotor() = delete;
+
+    ServoMotor(const ServoMotor &) = delete;
+
+    ServoMotor &operator=(const ServoMotor &) = delete;
+
     explicit ServoMotor(Registry &registry, const ServoMotorOptions &options);
 
     [[nodiscard]] std::string_view getServiceName() const override {
